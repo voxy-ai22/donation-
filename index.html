@@ -7,6 +7,66 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
   <link rel="stylesheet" href="style.css"/>
+  <style>
+    /* ===== COUNTDOWN TIMER ===== */
+    .countdown-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      margin: 12px 0 8px;
+      gap: 8px;
+    }
+    .countdown-ring-wrap {
+      position: relative; width: 64px; height: 64px;
+    }
+    .countdown-ring-wrap svg {
+      transform: rotate(-90deg);
+    }
+    .countdown-bg-circle {
+      fill: none;
+      stroke: rgba(255,255,255,0.08);
+      stroke-width: 4;
+    }
+    #countdownRing {
+      fill: none;
+      stroke: var(--gold);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-dasharray: 138.2; /* 2 * PI * 22 */
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s linear, stroke 0.3s;
+    }
+    .countdown-num {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 800; font-family: 'Poppins', sans-serif;
+      color: var(--gold);
+      transition: color 0.3s;
+    }
+    .countdown-label {
+      font-size: 11px; color: var(--text3); text-transform: uppercase;
+      letter-spacing: 1px; font-weight: 600;
+    }
+    .countdown-bar-wrap {
+      width: 100%; height: 4px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 2px; overflow: hidden;
+      margin-top: 4px;
+    }
+    #countdownBar {
+      height: 100%; width: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--gold3));
+      border-radius: 2px;
+      transition: width 1s linear, background 0.3s;
+    }
+    .countdown-text {
+      font-size: 12px; color: var(--text3); text-align: center; margin-top: 2px;
+    }
+
+    /* donor pop animation */
+    @keyframes donor-pop {
+      from { transform: scale(0.8) translateY(-10px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+  </style>
 </head>
 <body>
   <div class="noise"></div>
@@ -26,6 +86,22 @@
         <div class="modal-method-logo" id="modalLogo"></div>
         <h2 class="modal-title" id="modalTitle">–</h2>
         <p class="modal-sub" id="modalSub">–</p>
+
+        <!-- COUNTDOWN TIMER -->
+        <div class="countdown-wrap">
+          <div class="countdown-ring-wrap">
+            <svg width="64" height="64" viewBox="0 0 50 50">
+              <circle class="countdown-bg-circle" cx="25" cy="25" r="22"/>
+              <circle id="countdownRing" cx="25" cy="25" r="22"/>
+            </svg>
+            <div class="countdown-num" id="countdownDisplay">60</div>
+          </div>
+          <span class="countdown-label">Selesaikan dalam</span>
+          <div class="countdown-bar-wrap">
+            <div id="countdownBar"></div>
+          </div>
+          <span class="countdown-text">Sesi otomatis berakhir jika tidak dikonfirmasi</span>
+        </div>
 
         <div id="qrSection" style="display:none;">
           <div class="qr-box">
@@ -58,6 +134,7 @@
             <span class="piv gold" id="infoAmount">–</span>
           </div>
         </div>
+
         <button class="modal-btn primary" id="confirmBtn" onclick="simulatePay()">
           <i class="fas fa-circle-check"></i> Konfirmasi Pembayaran
         </button>
