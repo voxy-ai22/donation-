@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Support Nexa Dev – Donasi Online</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="noise"></div>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Admin Link (Hidden) -->
+  <a href="admin.html" class="admin-hidden-link" title="Admin Panel">⚙️</a>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modal">
+      <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      <div class="confetti-container" id="confettiContainer"></div>
+
+      <!-- STEP 1: Payment -->
+      <div class="modal-step active" id="step1">
+        <div class="modal-method-logo" id="modalLogo"></div>
+        <h2 class="modal-title" id="modalTitle">–</h2>
+        <p class="modal-sub" id="modalSub">–</p>
+
+        <div id="qrSection" style="display:none;">
+          <div class="qr-box">
+            <img src="https://c.termai.cc/i155/zjEzdjz.jpg" alt="QRIS Code" id="qrImage" style="border-radius:8px;"/>
+          </div>
+          <p style="text-align:center;font-size:12px;color:var(--text3);margin-top:-10px;margin-bottom:16px;">
+            <i class="fas fa-info-circle"></i> Scan dengan aplikasi e-wallet manapun
+          </p>
+        </div>
+
+        <div id="walletSection" style="display:none;">
+          <div class="copy-field">
+            <span class="copy-field-icon" id="walletIcon"></span>
+            <span class="copy-field-val" id="walletNumber">–</span>
+            <button class="copy-btn" id="copyBtn" onclick="copyWallet()"><i class="far fa-copy"></i> Salin</button>
+          </div>
+        </div>
+
+        <div class="payment-info">
+          <div class="payment-info-row">
+            <span class="pil"><i class="fas fa-user"></i> Nama</span>
+            <span class="piv" id="infoName">–</span>
+          </div>
+          <div class="payment-info-row">
+            <span class="pil"><i class="fas fa-wallet"></i> Metode</span>
+            <span class="piv" id="infoMethod">–</span>
+          </div>
+          <div class="payment-info-row">
+            <span class="pil"><i class="fas fa-tag"></i> Jumlah</span>
+            <span class="piv gold" id="infoAmount">–</span>
+          </div>
+        </div>
+        <button class="modal-btn primary" id="confirmBtn" onclick="simulatePay()">
+          <i class="fas fa-circle-check"></i> Konfirmasi Pembayaran
+        </button>
+        <button class="modal-btn outline" onclick="closeModal()"><i class="fas fa-arrow-left"></i> Kembali</button>
+      </div>
+
+      <!-- STEP 2: Success -->
+      <div class="modal-step" id="step2">
+        <div class="success-pulse"><i class="fas fa-heart"></i></div>
+        <h2 class="modal-title">Makasih Banyak! 🎉</h2>
+        <p class="modal-sub">Dukungan kamu sangat berarti dan membuat Mimin makin semangat berkarya! 💛</p>
+        <div class="payment-info">
+          <div class="payment-info-row">
+            <span class="pil"><i class="fas fa-user-circle"></i> Donatur</span>
+            <span class="piv" id="successName">–</span>
+          </div>
+          <div class="payment-info-row">
+            <span class="pil"><i class="fas fa-coins"></i> Jumlah</span>
+            <span class="piv gold" id="successAmount">–</span>
+          </div>
+          <div class="payment-info-row">
+            <span class="pil"><i class="fas fa-circle-check"></i> Status</span>
+            <span class="piv" style="color:var(--green);"><i class="fas fa-check"></i> Berhasil</span>
+          </div>
+        </div>
+        <button class="modal-btn success-btn" onclick="closeModal()"><i class="fas fa-star"></i> Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE CONTENT -->
+  <div class="banner">
+    <div class="banner-bg">
+      <div class="banner-grid"></div>
+      <div class="banner-glow"></div>
+      <div class="banner-code">
+        &lt;support&gt;<br>
+        &nbsp;&nbsp;creator = "Nexa Dev"<br>
+        &nbsp;&nbsp;status = "online"<br>
+        &lt;/support&gt;
+      </div>
+      <div class="banner-text-center">
+        <div class="banner-title-big">Support Me</div>
+        <div class="banner-subtitle">Donasi Creator</div>
+      </div>
+    </div>
+    <div class="banner-badge"><span class="dot"></span> LIVE Support</div>
+  </div>
+
+  <div class="wrapper">
+    <!-- PROFILE -->
+    <div class="profile-section">
+      <div class="avatar-ring">
+        <img src="https://c.termai.cc/i140/DhS6v.jpg" alt="Nexa Dev Avatar" onerror="this.src='https://ui-avatars.com/api/?name=Nexa+Dev&size=200&background=7c5cfc&color=fff&bold=true'"/>
+        <div class="avatar-online"><i class="fas fa-check"></i></div>
+      </div>
+      <h1 class="creator-name">Nexa Dev</h1>
+      <p class="creator-handle"><i class="fas fa-code"></i> @nexadev · Developer & Creator</p>
+      <p class="creator-bio">
+        Bantu Support Nya biar Mimin lebih semangat untuk membuat project selanjutnya <span class="emoji">😉</span>
+        <br>Setiap support dari kalian sangat berarti banget! ❤️
+      </p>
+      <div class="stats-row">
+        <div class="stat">
+          <span class="stat-val" id="donorCount">142 <i class="fas fa-users"></i></span>
+          <span class="stat-label">Donatur</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-val">4.9 <i class="fas fa-star"></i></span>
+          <span class="stat-label">Rating</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-val">2.1K <i class="fas fa-heart"></i></span>
+          <span class="stat-label">Support</span>
+        </div>
+      </div>
+      <div class="social-row">
+        <a class="social-btn" href="#" title="GitHub"><i class="fab fa-github"></i></a>
+        <a class="social-btn" href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+        <a class="social-btn" href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+        <a class="social-btn" href="#" title="TikTok"><i class="fab fa-tiktok"></i></a>
+        <a class="social-btn" href="#" title="Discord"><i class="fab fa-discord"></i></a>
+        <a class="social-btn" href="#" title="Website"><i class="fas fa-globe"></i></a>
+      </div>
+    </div>
+
+    <!-- PAYMENT METHODS -->
+    <p class="section-title reveal"><i class="fas fa-wallet"></i> Pilih Metode Pembayaran</p>
+    <div class="methods-grid reveal">
+      <div class="method-card qris active" onclick="selectMethod('qris')" id="card-qris">
+        <div class="method-check"><i class="fas fa-check"></i></div>
+        <div class="method-logo-wrap">
+          <img src="https://kimi-web-img.moonshot.cn/img/logowik.com/dffbff7e3087baa7626bf9869c64a3213fbf86cb.webp" alt="QRIS" />
+        </div>
+        <div class="method-name">QRIS</div>
+        <div class="method-desc">Scan QR · semua e-wallet</div>
+      </div>
+
+      <div class="method-card dana" onclick="selectMethod('dana')" id="card-dana">
+        <div class="method-check"><i class="fas fa-check"></i></div>
+        <div class="method-logo-wrap">
+          <img src="https://kimi-web-img.moonshot.cn/img/upload.wikimedia.org/23fa6c7ab03d5a081a3d04fe18238797337c6313.png" alt="DANA" />
+        </div>
+        <div class="method-name">DANA</div>
+        <div class="method-desc">Transfer via DANA</div>
+      </div>
+
+      <div class="method-card ovo" onclick="selectMethod('ovo')" id="card-ovo">
+        <div class="method-check"><i class="fas fa-check"></i></div>
+        <div class="method-logo-wrap">
+          <svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" width="70" height="36">
+            <rect width="120" height="40" rx="6" fill="#632cb3"/>
+            <text x="50%" y="28" font-family="Arial Black,sans-serif" font-size="22" font-weight="900" fill="white" text-anchor="middle" letter-spacing="2">OVO</text>
+          </svg>
+        </div>
+        <div class="method-name">OVO</div>
+        <div class="method-desc">Transfer via OVO</div>
+      </div>
+
+      <div class="method-card gopay" onclick="selectMethod('gopay')" id="card-gopay">
+        <div class="method-check"><i class="fas fa-check"></i></div>
+        <div class="method-logo-wrap">
+          <img src="https://kimi-web-img.moonshot.cn/img/1000logos.net/6d833cf77619bd9b0a926007acc3dd6ef616e1e3.png" alt="GoPay" />
+        </div>
+        <div class="method-name">GoPay</div>
+        <div class="method-desc">Transfer via GoPay</div>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <p class="section-title reveal"><i class="fas fa-hand-holding-heart"></i> Detail Donasi</p>
+    <div class="donation-form reveal">
+      <div class="form-row">
+        <label class="form-label"><i class="fas fa-coins"></i> Jumlah Donasi</label>
+        <div class="amount-presets">
+          <button class="preset-btn" onclick="setPreset(5000,this)">Rp 5K</button>
+          <button class="preset-btn" onclick="setPreset(10000,this)">Rp 10K</button>
+          <button class="preset-btn active" onclick="setPreset(20000,this)">Rp 20K</button>
+          <button class="preset-btn" onclick="setPreset(50000,this)">Rp 50K</button>
+          <button class="preset-btn" onclick="setPreset(100000,this)">Rp 100K</button>
+          <button class="preset-btn" onclick="setPreset(500000,this)">Rp 500K</button>
+        </div>
+        <div class="input-wrap">
+          <span class="input-prefix">Rp</span>
+          <input type="number" class="form-input" id="amountInput" placeholder="Masukkan nominal..." value="20000" min="1000" oninput="clearPresets()"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label"><i class="fas fa-user-circle"></i> Nama <span style="color:var(--text3);font-weight:400;font-size:11px;margin-left:2px;">(opsional)</span></label>
+        <div class="input-wrap">
+          <i class="input-icon fas fa-user" style="left:14px;top:50%;transform:translateY(-50%);position:absolute;color:var(--text3);font-size:14px;pointer-events:none;"></i>
+          <input type="text" class="form-input" id="nameInput" placeholder="Nama atau anonim..." style="padding-left:40px;"/>
+        </div>
+      </div>
+      <div class="form-row" style="margin-bottom:22px;">
+        <label class="form-label"><i class="fas fa-comment-dots"></i> Pesan <span style="color:var(--text3);font-weight:400;font-size:11px;margin-left:2px;">(opsional)</span></label>
+        <textarea class="message-area" id="messageInput" placeholder="Tulis pesan semangat untuk Mimin..."></textarea>
+      </div>
+      <button class="donate-btn" id="donateBtn" onclick="openPayment()">
+        <span class="btn-text"><i class="fas fa-heart"></i> &nbsp;Donasi Sekarang</span>
+        <i class="fas fa-spinner btn-spinner"></i>
+      </button>
+    </div>
+
+    <!-- RECENT DONORS -->
+    <p class="section-title reveal"><i class="fas fa-clock-rotate-left"></i> Donatur Terbaru</p>
+    <div class="donors-list reveal" id="donorsList"></div>
+
+    <div class="footer">
+      <div class="footer-icons">
+        <i class="fas fa-shield-halved" title="Aman"></i>
+        <i class="fas fa-lock" title="Terenkripsi"></i>
+        <i class="fas fa-heart" title="Dengan Cinta"></i>
+        <i class="fas fa-bolt" title="Instan"></i>
+        <i class="fas fa-star" title="Terpercaya"></i>
+      </div>
+      <p>Dibuat dengan <i class="fas fa-heart" style="color:var(--gold)"></i> untuk <a href="#">Nexa Dev</a></p>
+      <p style="font-size:11px;margin-top:4px;">Aman · Terpercaya · Transparan · 100% untuk Creator</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
