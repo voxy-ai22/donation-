@@ -50,14 +50,18 @@ const INITIAL_DONORS = [
 let selectedMethod = 'qris';
 let donationData = {};
 let audioCtx;
+let paymentCountdownTimer = null;
+let paymentSecondsLeft = 60;
 
-// Initialize
+// ============================================================
+// INITIALIZE
+// ============================================================
 window.addEventListener('load', () => {
   renderDonors(INITIAL_DONORS);
   initReveal();
   loadDonationsFromStorage();
   document.addEventListener('click', () => {
-    try { getAudio().resume(); } catch(e) {} 
+    try { getAudio().resume(); } catch(e) {}
   }, { once: true });
 });
 
@@ -74,18 +78,18 @@ function initReveal() {
   els.forEach(el => io.observe(el));
 }
 
-// Load donations from localStorage (sync with admin)
 function loadDonationsFromStorage() {
   const stored = localStorage.getItem('nexa_donations');
   if (stored) {
     const donations = JSON.parse(stored);
-    // Update donor count
     const currentCount = 142 + donations.length;
     document.getElementById('donorCount').innerHTML = `${currentCount} <i class="fas fa-users"></i>`;
   }
 }
 
-// Select Payment Method
+// ============================================================
+// METHOD SELECTION
+// ============================================================
 function selectMethod(m) {
   selectedMethod = m;
   document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
@@ -94,7 +98,9 @@ function selectMethod(m) {
   toast(`<i class="fas fa-circle-check" style="color:var(--green)"></i> ${METHODS[m].name} dipilih`, 'info');
 }
 
-// Preset Amounts
+// ============================================================
+// AMOUNT PRESETS
+// ============================================================
 function setPreset(val, btn) {
   document.getElementById('amountInput').value = val;
   document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
@@ -106,7 +112,9 @@ function clearPresets() {
   document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
 }
 
-// Open Payment Modal
+// ============================================================
+// PAYMENT MODAL
+// ============================================================
 function openPayment() {
   const amount = parseInt(document.getElementById('amountInput').value) || 0;
   if (amount < 1000) {
@@ -114,9 +122,9 @@ function openPayment() {
     return;
   }
   const name = document.getElementById('nameInput').value.trim() || 'Anonim';
-  donationData = { 
-    amount, 
-    name, 
+  donationData = {
+    amount,
+    name,
     message: document.getElementById('messageInput').value.trim(),
     method: selectedMethod,
     timestamp: new Date().toISOString()
@@ -134,6 +142,7 @@ function openPayment() {
     document.getElementById('confirmBtn').innerHTML = '<i class="fas fa-circle-check"></i> Konfirmasi Pembayaran';
     document.getElementById('confirmBtn').disabled = false;
     document.getElementById('modalOverlay').classList.add('open');
+    startPaymentCountdown();
   }, 1100);
 }
 
@@ -142,18 +151,18 @@ function buildModal() {
   const logoContainer = document.getElementById('modalLogo');
   logoContainer.innerHTML = `<img src="${m.logoUrl}" alt="${m.name}" style="max-width:100%;max-height:100%;object-fit:contain;" />`;
   logoContainer.style.background = m.modalBg;
-  
+
   document.getElementById('modalTitle').textContent = m.hasWallet ? `Transfer via ${m.name}` : 'Scan QRIS';
   document.getElementById('modalSub').textContent = m.sub;
-  
+
   document.getElementById('qrSection').style.display = m.hasWallet ? 'none' : 'block';
   document.getElementById('walletSection').style.display = m.hasWallet ? 'flex' : 'none';
-  
+
   if (m.hasWallet) {
     document.getElementById('walletNumber').textContent = m.number;
     document.getElementById('walletIcon').textContent = m.icon;
   }
-  
+
   document.getElementById('infoName').textContent = donationData.name;
   document.getElementById('infoMethod').textContent = m.name;
   document.getElementById('infoAmount').textContent = formatRp(donationData.amount);
@@ -162,15 +171,87 @@ function buildModal() {
 function closeModal() {
   document.getElementById('modalOverlay').classList.remove('open');
   document.getElementById('confettiContainer').innerHTML = '';
+  stopPaymentCountdown();
 }
 
-// Confirm Payment
+// ============================================================
+// COUNTDOWN TIMER (1 minute)
+// ============================================================
+function startPaymentCountdown() {
+  stopPaymentCountdown();
+  paymentSecondsLeft = 60;
+  updateCountdownUI();
+
+  paymentCountdownTimer = setInterval(() => {
+    paymentSecondsLeft--;
+    updateCountdownUI();
+
+    if (paymentSecondsLeft <= 0) {
+      stopPaymentCountdown();
+      onCountdownExpired();
+    }
+
+    // Warning pulse at 10 seconds
+    if (paymentSecondsLeft <= 10) {
+      const countEl = document.getElementById('countdownDisplay');
+      if (countEl) countEl.style.color = 'var(--red)';
+    }
+  }, 1000);
+}
+
+function updateCountdownUI() {
+  const countEl = document.getElementById('countdownDisplay');
+  const ringEl = document.getElementById('countdownRing');
+  const barEl = document.getElementById('countdownBar');
+
+  if (countEl) countEl.textContent = `${String(paymentSecondsLeft).padStart(2, '0')}`;
+  if (ringEl) {
+    const pct = (paymentSecondsLeft / 60) * 100;
+    const circ = 2 * Math.PI * 22; // r=22
+    const offset = circ * (1 - pct / 100);
+    ringEl.style.strokeDashoffset = offset;
+    ringEl.style.stroke = paymentSecondsLeft <= 10 ? 'var(--red)' : 'var(--gold)';
+  }
+  if (barEl) {
+    const pct = (paymentSecondsLeft / 60) * 100;
+    barEl.style.width = pct + '%';
+    barEl.style.background = paymentSecondsLeft <= 10
+      ? 'linear-gradient(90deg, var(--red), #ff8080)'
+      : 'linear-gradient(90deg, var(--gold), var(--gold3))';
+  }
+}
+
+function stopPaymentCountdown() {
+  if (paymentCountdownTimer) {
+    clearInterval(paymentCountdownTimer);
+    paymentCountdownTimer = null;
+  }
+}
+
+function onCountdownExpired() {
+  const confirmBtn = document.getElementById('confirmBtn');
+  if (confirmBtn) {
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '<i class="fas fa-clock"></i> Waktu Habis';
+    confirmBtn.style.opacity = '0.5';
+  }
+  toast('<i class="fas fa-clock" style="color:var(--red)"></i> Waktu pembayaran habis. Silakan coba lagi.', 'error');
+  setTimeout(() => {
+    closeModal();
+    if (confirmBtn) { confirmBtn.style.opacity = ''; }
+  }, 2000);
+}
+
+// ============================================================
+// CONFIRM PAYMENT
+// ============================================================
 function simulatePay() {
   const btn = document.getElementById('confirmBtn');
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memverifikasi...';
   btn.disabled = true;
+  stopPaymentCountdown();
   playTick();
-  
+
   setTimeout(() => {
     showSuccess();
   }, 1800);
@@ -181,18 +262,14 @@ function showSuccess() {
   document.getElementById('step2').classList.add('active');
   document.getElementById('successName').textContent = donationData.name;
   document.getElementById('successAmount').textContent = formatRp(donationData.amount);
-  
+
   spawnConfetti();
   playSuccess();
-  
-  // Save to localStorage for admin
   saveDonationToStorage(donationData);
-  
   addDonor(donationData);
   toast('<i class="fas fa-heart" style="color:#ef4444"></i> Donasi berhasil! Terima kasih!', 'success');
 }
 
-// Save donation to localStorage
 function saveDonationToStorage(data) {
   let donations = JSON.parse(localStorage.getItem('nexa_donations') || '[]');
   donations.unshift({
@@ -204,7 +281,9 @@ function saveDonationToStorage(data) {
   localStorage.setItem('nexa_donations', JSON.stringify(donations));
 }
 
-// Copy Wallet Number
+// ============================================================
+// COPY WALLET
+// ============================================================
 function copyWallet() {
   const num = document.getElementById('walletNumber').textContent;
   navigator.clipboard.writeText(num).then(() => {
@@ -212,14 +291,16 @@ function copyWallet() {
     btn.classList.add('copied');
     btn.innerHTML = '<i class="fas fa-check"></i> Disalin!';
     toast('<i class="fas fa-copy"></i> Nomor berhasil disalin!', 'success');
-    setTimeout(() => { 
-      btn.classList.remove('copied'); 
-      btn.innerHTML = '<i class="far fa-copy"></i> Salin'; 
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<i class="far fa-copy"></i> Salin';
     }, 2200);
   });
 }
 
-// Donors List
+// ============================================================
+// DONORS LIST
+// ============================================================
 function renderDonors(list) {
   const el = document.getElementById('donorsList');
   el.innerHTML = '';
@@ -246,17 +327,20 @@ function makeDonorEl(d) {
 function addDonor(d) {
   const list = document.getElementById('donorsList');
   const el = makeDonorEl({ ...d, time: 'Baru saja' });
+  el.style.animation = 'donor-pop 0.5s cubic-bezier(.34,1.56,.64,1)';
   list.insertBefore(el, list.firstChild);
   const cnt = document.getElementById('donorCount');
   cnt.innerHTML = `${parseInt(cnt.textContent) + 1} <i class="fas fa-users"></i>`;
 }
 
-// Confetti Animation
+// ============================================================
+// CONFETTI
+// ============================================================
 function spawnConfetti() {
   const c = document.getElementById('confettiContainer');
   c.innerHTML = '';
   const colors = ['#f5c842','#7c5cfc','#22c55e','#3b82f6','#f97316','#ec4899','#a7f3d0'];
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 50; i++) {
     const p = document.createElement('div');
     p.className = 'cp';
     p.style.cssText = `
@@ -271,10 +355,12 @@ function spawnConfetti() {
     `;
     c.appendChild(p);
   }
-  setTimeout(() => c.innerHTML = '', 4000);
+  setTimeout(() => c.innerHTML = '', 4500);
 }
 
-// Toast Notifications
+// ============================================================
+// TOAST
+// ============================================================
 function toast(html, type = 'info') {
   const box = document.getElementById('toastContainer');
   const t = document.createElement('div');
@@ -287,7 +373,9 @@ function toast(html, type = 'info') {
   }, 3200);
 }
 
-// Audio Effects
+// ============================================================
+// AUDIO
+// ============================================================
 function getAudio() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   return audioCtx;
@@ -320,7 +408,9 @@ function playSuccess() {
   } catch(e) {}
 }
 
-// Utility
+// ============================================================
+// UTILITY
+// ============================================================
 function formatRp(n) {
-  return 'Rp ' + n.toLocaleString('id-ID');
+  return 'Rp ' + Number(n).toLocaleString('id-ID');
 }
