@@ -113,13 +113,13 @@ Upload foto QRIS kamu ke salah satu layanan gratis berikut:
 Atau **chat mimin** dan kirimkan foto QRIS kamu untuk dibantu convert ke URL. 😊
 
 ## Cara ganti <!-- PAGE CONTENT -->
-masuk ke html cari code 
-<div class="banner-code">
+masuk ke index.html cari code 
+``` <div class="banner-code">
   &lt;support&gt;<br>
   &nbsp;&nbsp;creator = "Nexa Dev"<br>
   &nbsp;&nbsp;status = "online"<br>
   &lt;/support&gt;
-</div>
+</div> ```
 
 ganti sesuai yg kalian mau 
 
