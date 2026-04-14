@@ -112,7 +112,7 @@ Upload foto QRIS kamu ke salah satu layanan gratis berikut:
 
 Atau **chat mimin** dan kirimkan foto QRIS kamu untuk dibantu convert ke URL. 😊
 
-## Cara ganti <!-- PAGE CONTENT -->
+## Cara ganti Page Content 
 masuk ke index.html cari code 
 ``` <div class="banner-code">
   &lt;support&gt;<br>
