@@ -15,7 +15,7 @@
 ## 📦 Cara Deploy ke GitHub
 
 1. **Buat repository baru** di [github.com](https://github.com) → klik `+` → `New repository`
-2. Beri nama repo (contoh: `donasi-page`), set ke **Public**, lalu klik **Create repository**
+2. Beri nama repo (contoh: `donasi-page`), set ke **Public**, lalu klik **Create repository** Dan Centang untuk readmd
 3. Upload semua file project lewat tombol `Add file` → `Upload files`, **atau** pakai Git CLI:
 
 ```bash
